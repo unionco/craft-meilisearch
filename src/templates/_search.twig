@@ -1,0 +1,9 @@
+{% extends '_layouts/cp' %}
+
+{% set title = 'Meilisearch - Test Search' %}
+
+{% block content %}
+    {# {{ sprig('_components/sprig/search') }} #}
+    {{ sprig('meilisearch/_components/sprig/search') }}
+    {{ sprig.script }}
+{% endblock %}

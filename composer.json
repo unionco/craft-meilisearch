@@ -1,0 +1,51 @@
+{
+    "name": "unionco/meilisearch",
+    "description": "Meilisearch integration for Craft",
+    "type": "craft-plugin",
+    "version": "0.1.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "meilisearch"
+    ],
+    "support": {
+        "docs": "https://github.com/unionco/meilisearch/blob/master/README.md",
+        "issues": "https://github.com/unionco/meilisearch/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Abry Rath",
+            "homepage": "https://union.co"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0",
+        "meilisearch/meilisearch-php": "^0.13"
+    },
+    "require-dev": {
+      "craftcms/cms": "^3.2.0",
+      "codeception/codeception": "^3.0",
+      "vlucas/phpdotenv": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "unionco\\meilisearch\\": "src/",
+          "sprig\\components\\unionco\\": "sprig/"
+        }
+    },
+    "extra": {
+        "name": "Meilisearch",
+        "handle": "meilisearch",
+        "developer": "Abry Rath",
+        "developerUrl": "https://union.co",
+        "documentationUrl": "https://github.com/unionco/meilisearch/blob/master/README.md",
+        "changelogUrl": "https://raw.githubusercontent.com/unionco/meilisearch/master/CHANGELOG.md",
+        "components": {
+            "meilisearchService": "unionco\\meilisearch\\services\\MeilisearchService"
+        },
+        "class": "unionco\\meilisearch\\Meilisearch"
+    }
+}

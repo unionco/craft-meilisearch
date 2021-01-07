@@ -1,0 +1,76 @@
+<?php
+
+// use craft\elements\Entry;
+// use craft\elements\db\ElementQuery;
+// use union\app\indexes\PropertyIndex;
+// use unionco\meilisearch\config\Index;
+
+/**
+ * Meilisearch Plugin config file
+ * @todo
+ * 1. Can we convert this to a decent UI?
+ *      a. Things like transforms will always need to be a PHP file
+ */
+
+ return [];
+// $properties = new PropertyIndex();
+
+// // Use the same config as the general properties index, but add faceting
+// // Using this idea, you could build multiple indexes with slightly different transforms, searchable attributes, etc.
+// $propertiesByMarketOrSubmarket = $properties
+//     ->clone()
+//     ->setAttributesForFaceting(['market', 'submarket']);
+
+// $markets = new Index([
+//     'rebuild' => [
+//         'sections' => ['markets'],
+//     ],
+//     'elementQuery' => function (): \craft\elements\db\ElementQuery {
+//         return Entry::find()
+//             ->section('markets')
+//             ->level(1)
+//             ->with([
+//                 'marketImage',
+//                 'leasingAgent',
+//             ]);
+//     },
+//     'transform' => function (Entry $entry): array{
+//         $image = $entry->marketImage[0] ?? null;
+//         $agent = $entry->leasingAgent[0] ?? null;
+
+//         return [
+//             'id' => (string) $entry->id,
+//             'title' => $entry->title,
+//             'marketImage' => $image ? $image->getUrl() : '',
+//             'leasingAgent' => $agent ? $agent->title : '',
+//         ];
+//     },
+//     'searchableAttributes' => ['title', 'submarket', 'leasingAgent'],
+// ]);
+
+// $submarkets = new Index([
+//     'rebuild' => [
+//         'sections' => ['markets'],
+//     ],
+//     'elementQuery' => function (): ElementQuery {
+//         return Entry::find()
+//             ->section('markets')
+//             ->level(2);
+//     },
+//     'transform' => function (Entry $entry): array{
+//         $parent = $entry->getParent();
+//         return [
+//             'id' => (string) $entry->id,
+//             'title' => $entry->title,
+//             'market' => $parent->title,
+//         ];
+//     },
+// ]);
+
+
+// return [
+//     'properties' => $properties,
+//     'properties_by_market_or_submarket' => $propertiesByMarketOrSubmarket,
+//     'markets' => $markets,
+//     'submarkets' => $submarkets,
+// ];
