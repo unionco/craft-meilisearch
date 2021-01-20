@@ -190,8 +190,8 @@ class Meilisearch extends Plugin
 
     protected function initializeClient()
     {
-        $settings = $this->getSettings();
-        // Why does this not work???????
+        $settings = Meilisearch::$plugin->getSettings();
+
         $host = \Craft::parseEnv($settings->host);
 
         // throw new \Exception(json_encode($host));
