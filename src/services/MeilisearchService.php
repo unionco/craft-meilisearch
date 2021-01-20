@@ -37,4 +37,19 @@ class MeilisearchService extends Component
 
         return $result;
     }
+
+    /**
+      * Search for documents matching a specific query in the given index.
+      * @param queryText Query originating the response
+      * @param meilisearchIndex Meilisearch index UID
+      * @param offset Number of documents skipped
+      * @param limit Number of documents to take
+      * @return object Results of the query
+      */
+    public function search($queryText, $indexName, $offset = 0, $limit = 100) {
+        $client = Meilisearch::getInstance()->getClient();
+        $index = $client->getIndex($indexName);
+        $result = $index->search($queryText, ['offset' => $offset, 'limit' => $limit]);
+        return $result;
+    }
 }
