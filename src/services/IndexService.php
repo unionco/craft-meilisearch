@@ -111,11 +111,8 @@ class IndexService extends Component
         // Meilisearch calls are async, so there is no way to show progress
         $client = Meilisearch::getInstance()->getClient();
         /** @todo read from config */
-        $options = [
-            'primaryKey' => 'id',
-        ];
-        $this->delete($uid);
-        $index = $client->getOrCreateIndex($uid, $options);
+        // $this->delete($uid);
+        $index = $client->getIndex($uid);
         $indexSettings = $indexConfig->getSettings();
         foreach ($indexSettings as $attr => $value) {
             if (!$value) {
