@@ -23,10 +23,9 @@
     ],
     "require": {
         "craftcms/cms": "^3.0.0",
-        "meilisearch/meilisearch-php": "^0.13"
+        "meilisearch/meilisearch-php": "^0.23"
     },
     "require-dev": {
-      "craftcms/cms": "^3.2.0",
       "codeception/codeception": "^3.0",
       "vlucas/phpdotenv": "^3.0"
     },
