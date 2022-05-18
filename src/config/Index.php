@@ -100,7 +100,7 @@ class Index
         if ($this->_transform) {
             return $this->_transform;
         }
-        return function(Element $e): array {
+        return function (Element $e): array {
             return ['id' => (string) $e->id];
         };
     }
@@ -136,6 +136,17 @@ class Index
         return $this->_elementQuery->all();
     }
 
+    public function getElementCount(): int
+    {
+        $this->_elementQuery = $this->elementQuery();
+        return $this->_elementQuery->count();
+    }
+
+    public function getElementQuery(): ElementQuery
+    {
+        return $this->elementQuery();
+    }
+
     public function setRebuild(array $rebuild): self
     {
         $this->_rebuild = $rebuild;
@@ -159,7 +170,8 @@ class Index
 
     // Protected methods for setting values in child classes
 
-    protected function transform(): Closure {
+    protected function transform(): Closure
+    {
         if ($transform = $this->_transform) {
             return $transform;
         }
