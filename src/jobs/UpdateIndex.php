@@ -42,7 +42,7 @@ class UpdateIndex extends BaseJob
      */
     public function execute($queue)
     {
-        Meilisearch::getInstance()->index->executeRebuildJob($this->uid);
+        Meilisearch::getInstance()->index->executeRebuildJob($this->uid, $queue);
     }
 
     // Protected Methods

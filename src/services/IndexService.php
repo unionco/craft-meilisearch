@@ -67,27 +67,36 @@ class IndexService extends Component
     /**
      * Execute the actual logic for the queue job
      */
-    public function executeRebuildJob($uid)
+    public function executeRebuildJob($uid, ?\craft\queue\Queue $queue = null)
     {
-        $elements = [];
         $settings = Meilisearch::getInstance()->getSettings();
-        // throw new \Exception(json_encode($settings));
+
         $indexConfig = $settings->getIndexes()[$uid];
 
-        $elements = $indexConfig->getElements();
+        $elementCount = $indexConfig->getElementCount();
+        $elementQuery = $indexConfig->getElementQuery();
+
         LogService::debug(__METHOD__, $uid);
-        if (!$elements) {
+        if (!$elementCount) {
             LogService::error(__METHOD__, 'No elements matched index elementQuery - ' .  $uid);
             return;
-            // throw new InvalidConfigException('No elements matched index elementQuery [' . $uid . ']');
         }
         $transform = $indexConfig->getTransform();
-        $transformed = array_map(
-            $transform,
-            $elements
-        );
+
+        /** @var array[] */
+        $transformed = [];
+        foreach ($elementQuery->each() as $i => $element) {
+            // Scale by 90% - the last 10% will be the meilisearch API call
+            $progress = ceil(($i / $elementCount) * 90);
+            $transformed[] = $transform($element);
+            if ($queue) {
+                $queue->setProgress($progress, 'Querying and transforming elements');
+            }
+        }
+
         $transformed = array_filter($transformed);
         if (!$transformed) {
+            LogService::error(__METHOD__, 'No elements remain after transformation - ' .  $uid);
             return;
         }
 
@@ -108,6 +117,9 @@ class IndexService extends Component
             }
         }
 
+        if ($queue) {
+            $queue->setProgress(90, 'Preparing Meilisearch API call');
+        }
         // Meilisearch calls are async, so there is no way to show progress
         $client = Meilisearch::getInstance()->getClient();
         /** @todo read from config */
@@ -131,6 +143,9 @@ class IndexService extends Component
             // LogService::error(__METHOD__, $flattened);
             throw $e;
         }
+        if ($queue) {
+            $queue->setProgress(100, 'Complete');
+        }
     }
 
     public function delete(string $uid)
@@ -139,7 +154,6 @@ class IndexService extends Component
         try {
             $client->deleteIndex($uid);
         } catch (\MeiliSearch\Exceptions\HTTPRequestException $e) {
-
         }
     }
 
