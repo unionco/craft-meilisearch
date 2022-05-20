@@ -26,7 +26,6 @@
         "meilisearch/meilisearch-php": "^0.23"
     },
     "require-dev": {
-      "codeception/codeception": "^3.0",
       "vlucas/phpdotenv": "^3.0"
     },
     "autoload": {
@@ -46,5 +45,11 @@
             "meilisearchService": "unionco\\meilisearch\\services\\MeilisearchService"
         },
         "class": "unionco\\meilisearch\\Meilisearch"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
     }
 }

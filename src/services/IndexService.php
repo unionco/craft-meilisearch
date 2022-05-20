@@ -135,7 +135,7 @@ class IndexService extends Component
             $index->{$name}($value);
         }
         // delete all documents in the index before rebuilding
-        $index->deleteAll();
+        $index->deleteAllDocuments();
         LogService::debug(__METHOD__ . ' - Before Add Documents (count)', count($transformed));
         try {
             $result = $index->addDocuments($flattened);
