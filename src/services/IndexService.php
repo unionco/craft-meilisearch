@@ -81,6 +81,7 @@ class IndexService extends Component
             LogService::error(__METHOD__, 'No elements matched index elementQuery - ' .  $uid);
             return;
         }
+
         $transform = $indexConfig->getTransform();
 
         /** @var array[] */
@@ -133,6 +134,8 @@ class IndexService extends Component
             $name = "update" . ucFirst($attr);
             $index->{$name}($value);
         }
+        // delete all documents in the index before rebuilding
+        $index->deleteAll();
         LogService::debug(__METHOD__ . ' - Before Add Documents (count)', count($transformed));
         try {
             $result = $index->addDocuments($flattened);
