@@ -10,6 +10,7 @@ use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use unionco\meilisearch\Meilisearch;
 use yii\base\Event;
+use craft\helpers\ElementHelper;
 
 class EventService extends Component
 {
@@ -63,6 +64,10 @@ class EventService extends Component
             $entryRebuildCallback = function (ModelEvent $event) use ($rebuildMap) {
                 /** @var Entry */
                 $entry = $event->sender;
+
+                if (ElementHelper::isDraftOrRevision($entry)) {
+                    return;
+                }
                 /** @var string */
                 $sectionHandle = $entry->section->handle;
                 /** @var string[] */
