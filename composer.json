@@ -2,7 +2,7 @@
     "name": "unionco/meilisearch",
     "description": "Meilisearch integration for Craft",
     "type": "craft-plugin",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "keywords": [
         "craft",
         "cms",
@@ -23,7 +23,7 @@
     ],
     "require": {
         "craftcms/cms": "^3.0.0",
-        "meilisearch/meilisearch-php": "^0.23"
+        "meilisearch/meilisearch-php": "0.24.0"
     },
     "require-dev": {
       "vlucas/phpdotenv": "^3.0"
