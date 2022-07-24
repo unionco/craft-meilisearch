@@ -2,20 +2,47 @@
 
 namespace unionco\meilisearch\services;
 
-use craft\base\Component;
-use craft\elements\Category;
-use craft\elements\Entry;
-use craft\events\ModelEvent;
-use craft\helpers\App;
-use craft\helpers\ArrayHelper;
-use unionco\meilisearch\Meilisearch;
+use craft\web\View;
 use yii\base\Event;
+use craft\helpers\App;
+use craft\base\Component;
+use craft\elements\Entry;
+use craft\elements\Category;
+use craft\events\ModelEvent;
+use craft\services\Dashboard;
+use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
+use unionco\meilisearch\Meilisearch;
+use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterComponentTypesEvent;
+use unionco\meilisearch\widgets\MeilisearchWidget;
 
 class EventService extends Component
 {
     public function attachEventListeners()
     {
+        // Register templates + Widgets
+        // Base template directory
+        Event::on(
+            View::class,
+            View::EVENT_REGISTER_CP_TEMPLATE_ROOTS,
+            function (RegisterTemplateRootsEvent $e) {
+                if (is_dir($baseDir = Meilisearch::$plugin->getBasePath() . DIRECTORY_SEPARATOR . 'templates')) {
+                    $e->roots[Meilisearch::$plugin->id] = $baseDir;
+                }
+            }
+        );
+        // Widgets
+        Event::on(
+            Dashboard::class,
+            Dashboard::EVENT_REGISTER_WIDGET_TYPES,
+            function (RegisterComponentTypesEvent $event) {
+                $event->types[] = MeilisearchWidget::class;
+            }
+        );
+
+
+        // Search-specific events
         $runOnSave = (bool) \getenv('MEILISEARCH_RUN_ON_SAVE');
         $settings = Meilisearch::getInstance()->getSettings();
         /**

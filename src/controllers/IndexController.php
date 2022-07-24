@@ -2,17 +2,38 @@
 
 namespace unionco\meilisearch\controllers;
 
+use Craft;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
+use unionco\meilisearch\services\IndexService;
 use unionco\meilisearch\Meilisearch;
 
 class IndexController extends Controller
 {
-    protected $allowAnonymous = ['show', 'test'];
+    protected $allowAnonymous = ['show'];
 
     public function actionShow()
     {
         return $this->asJson(['todo']);
+    }
+
+    public function actionWidgetRebuild()
+    {
+        $this->requirePostRequest();
+        $req = Craft::$app->getRequest();
+        $uid = $req->getRequiredBodyParam('uid');
+        if (!$uid) {
+            Craft::$app->getSession()
+                ->setFlash('cp-error', 'Please select an index');
+            return $this->redirectToPostedUrl();
+        }
+        /** @var IndexService */
+        $indexService = Meilisearch::$plugin->index;
+        $indexService->rebuild($uid);
+        // Set a flash notice
+        Craft::$app->getSession()
+            ->setFlash('cp-notice', 'Index rebuild started');
+        return $this->redirectToPostedUrl();
     }
 
     public function actionRebuild()
@@ -36,10 +57,5 @@ class IndexController extends Controller
         \Craft::$app->getSession()-> setFlash('cp-notice', 'Meilisearch index rebuild started');
 
         return $this->redirect(UrlHelper::cpUrl('meilisearch'));
-    }
-
-    public function actionTest()
-    {
-        Meilisearch::getInstance()->index->executeRebuildJob('properties_by_market_or_submarket');
     }
 }

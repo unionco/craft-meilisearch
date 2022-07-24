@@ -92,64 +92,26 @@ class Meilisearch extends Plugin
             // 'transforms' => \unionco\meilisearch\services\TransformService::class,
         ]);
 
-        Event::on(
-            UrlManager::class,
-            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-            function (RegisterUrlRulesEvent $event) {
-                $event->rules['siteActionTrigger1'] = 'meilisearch/meilisearch';
-                $event->rules['siteActionTrigger2'] = 'meilisearch/admin';
-            }
-        );
-
-        Event::on(
-            UrlManager::class,
-            UrlManager::EVENT_REGISTER_CP_URL_RULES,
-            function (RegisterUrlRulesEvent $event) {
-                $event->rules['meilisearch'] = 'meilisearch/admin/index';
-                $event->rules['meilisearch/indexes'] = 'meilisearch/admin/indexes';
-                $event->rules['meilisearch/debug'] = 'meilisearch/admin/debug';
-                $event->rules['meilisearch/search'] = 'meilisearch/search/index';
-            }
-        );
-
         // Event::on(
-        //     Cp::class,
-        //     Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-        //     function (RegisterCpNavItemsEvent $event) {
-        //         $event->navItems['meilisearch'] = [
-        //             'url' => 'meilisearch',
-        //             'label' => 'Meilisearch',
-        //             'subnav' => [
-        //                 'indexes' => [
-        //                     'label' => 'Rebuild Indexes',
-        //                     'url' => 'meilisearch/indexes'
-        //                 ],
-        //                 'search' => [
-        //                     'label' => 'Search',
-        //                     'url' => 'meilisearch/search'
-        //                 ],
-        //             ],
-        //         ];
+        //     UrlManager::class,
+        //     UrlManager::EVENT_REGISTER_SITE_URL_RULES,
+        //     function (RegisterUrlRulesEvent $event) {
+        //         $event->rules['siteActionTrigger1'] = 'meilisearch/meilisearch';
+        //         $event->rules['siteActionTrigger2'] = 'meilisearch/admin';
         //     }
         // );
 
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function (PluginEvent $event) {
-                if ($event->plugin === $this) {
-                }
-            }
-        );
+        // Event::on(
+        //     UrlManager::class,
+        //     UrlManager::EVENT_REGISTER_CP_URL_RULES,
+        //     function (RegisterUrlRulesEvent $event) {
+        //         $event->rules['meilisearch'] = 'meilisearch/admin/index';
+        //         $event->rules['meilisearch/indexes'] = 'meilisearch/admin/indexes';
+        //         $event->rules['meilisearch/debug'] = 'meilisearch/admin/debug';
+        //         $event->rules['meilisearch/search'] = 'meilisearch/search/index';
+        //     }
+        // );
 
-        Craft::info(
-            Craft::t(
-                'meilisearch',
-                '{name} plugin loaded',
-                ['name' => $this->name]
-            ),
-            __METHOD__
-        );
         $this->events->attachEventListeners();
     }
 
@@ -191,22 +153,15 @@ class Meilisearch extends Plugin
     protected function initializeClient()
     {
         $settings = $this->getSettings();
-        // Why does this not work???????
-        $host = \Craft::parseEnv($settings->host);
+        $host = App::parseEnv($settings->host);
 
-        // throw new \Exception(json_encode($host));
         if (!$host) {
             $host = $settings->host;
         }
-        // \Craft::dd($settings->key);
-        $key = \Craft::parseEnv($settings->key);
+        $key = App::parseEnv($settings->key);
         if (!$key) {
             $key = $settings->key;
         }
-        // throw new \Exception(json_encode([
-        //     $host,
-        //     $key
-        // ]));
         $this->client = new Client($host, $key);
     }
 

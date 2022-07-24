@@ -1,0 +1,12 @@
+{% import "_includes/forms" as forms %}
+
+<p>Rebuilding an index will start a queue job. Rebuilding an index is not recommended during periods of high traffic.</p>
+<form method="post">
+	{{ csrfInput() }}
+	{{ actionInput('meilisearch/index/widget-rebuild') }}
+	{{ forms.select({
+            options: options,
+            name: 'uid'
+        }) }}
+	<button class="btn submit" type="submit">Rebuild</button>
+</form>
