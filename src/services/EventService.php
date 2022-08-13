@@ -2,6 +2,7 @@
 
 namespace unionco\meilisearch\services;
 
+use Throwable;
 use craft\web\View;
 use yii\base\Event;
 use craft\helpers\App;
@@ -22,16 +23,6 @@ class EventService extends Component
     public function attachEventListeners()
     {
         // Register templates + Widgets
-        // Base template directory
-        Event::on(
-            View::class,
-            View::EVENT_REGISTER_CP_TEMPLATE_ROOTS,
-            function (RegisterTemplateRootsEvent $e) {
-                if (is_dir($baseDir = Meilisearch::$plugin->getBasePath() . DIRECTORY_SEPARATOR . 'templates')) {
-                    $e->roots[Meilisearch::$plugin->id] = $baseDir;
-                }
-            }
-        );
         // Widgets
         Event::on(
             Dashboard::class,
@@ -45,6 +36,9 @@ class EventService extends Component
         // Search-specific events
         $runOnSave = (bool) \getenv('MEILISEARCH_RUN_ON_SAVE');
         $settings = Meilisearch::getInstance()->getSettings();
+        if (!$runOnSave) {
+            return;
+        }
         /**
          * Compile a mapping of all of the triggers to rebuild a given index UID
          * For example, if the `properties_index` index should be rebuilt whenever an Entry
@@ -67,26 +61,31 @@ class EventService extends Component
         ];
 
         // Get all of the defined indexes from the config file
-        $indexes = $settings->getIndexes();
-        // var_dump($indexes); die;
-        foreach ($indexes as $uid => $index) {
-            $rebuildTriggers = $index->getRebuild();
-            if ($rebuildTriggers['sections'] ?? false) {
-                foreach ($rebuildTriggers['sections'] as $sectionHandle) {
-                    $rebuildMap['sections'][$sectionHandle][] = $uid;
+        try {
+            $indexes = $settings->getIndexes();
+            // var_dump($indexes); die;
+            foreach ($indexes as $uid => $index) {
+                $rebuildTriggers = $index->getRebuild();
+                if ($rebuildTriggers['sections'] ?? false) {
+                    foreach ($rebuildTriggers['sections'] as $sectionHandle) {
+                        $rebuildMap['sections'][$sectionHandle][] = $uid;
+                    }
                 }
-            }
-            if ($rebuildTriggers['categories'] ?? false) {
-                foreach ($rebuildTriggers['categories'] as $categoryGroupHandle) {
-                    $rebuildMap['categories'][$categoryGroupHandle][] = $uid;
+                if ($rebuildTriggers['categories'] ?? false) {
+                    foreach ($rebuildTriggers['categories'] as $categoryGroupHandle) {
+                        $rebuildMap['categories'][$categoryGroupHandle][] = $uid;
+                    }
                 }
+                /** @todo */
+                // and so on...
             }
-            /** @todo */
-            // and so on...
+        } catch (Throwable $e) {
+            $indexes = [];
+            $rebuildMap = [];
         }
 
         // Attach Entry section listeners, if set
-        if ($runOnSave && $rebuildMap['sections'] ?? false) {
+        if ($rebuildMap['sections'] ?? false) {
 
             $entryRebuildCallback = function (ModelEvent $event) use ($rebuildMap) {
                 /** @var Entry */
