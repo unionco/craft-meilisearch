@@ -81,7 +81,10 @@ class EventService extends Component
             }
         } catch (Throwable $e) {
             $indexes = [];
-            $rebuildMap = [];
+            $rebuildMap = [
+                'sections' => [],
+                'categories' => [],
+            ];
         }
 
         // Attach Entry section listeners, if set
