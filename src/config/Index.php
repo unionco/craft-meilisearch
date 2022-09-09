@@ -27,6 +27,7 @@ class Index
         'distinctAttribute' => null,
         'searchableAttributes' => null,
         'displayedAttributes' => null,
+        'sortableAttributes' => null,
     ];
 
     public function __construct($params = [])
@@ -81,6 +82,12 @@ class Index
     public function setDisplayedAttributes(array $displayedAttributes): self
     {
         $this->_settings['displayedAttributes'] = $displayedAttributes;
+        return $this;
+    }
+
+    public function setSortableAttributes(array $sortableAttributes): self
+    {
+        $this->_settings['sortableAttributes'] = $sortableAttributes;
         return $this;
     }
 
