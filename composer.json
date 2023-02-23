@@ -23,7 +23,7 @@
     ],
     "require": {
         "craftcms/cms": "^3.0.0",
-        "meilisearch/meilisearch-php": "0.24.0"
+        "meilisearch/meilisearch-php": "^1.0.0"
     },
     "require-dev": {
       "vlucas/phpdotenv": "^3.0"
@@ -49,7 +49,8 @@
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true,
-            "craftcms/plugin-installer": true
+            "craftcms/plugin-installer": true,
+            "php-http/discovery": true
         }
     }
 }
