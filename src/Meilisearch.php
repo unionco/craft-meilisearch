@@ -12,14 +12,9 @@
 namespace unionco\meilisearch;
 
 use Craft;
-use yii\base\Event;
 use craft\base\Plugin;
 use craft\helpers\App;
 use MeiliSearch\Client;
-use craft\web\UrlManager;
-use craft\services\Plugins;
-use craft\events\PluginEvent;
-use craft\events\RegisterUrlRulesEvent;
 use unionco\meilisearch\models\Settings;
 use craft\console\Application as ConsoleApplication;
 use unionco\meilisearch\twigextensions\MeilisearchTwigExtension;
@@ -92,26 +87,6 @@ class Meilisearch extends Plugin
             // 'transforms' => \unionco\meilisearch\services\TransformService::class,
         ]);
 
-        // Event::on(
-        //     UrlManager::class,
-        //     UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-        //     function (RegisterUrlRulesEvent $event) {
-        //         $event->rules['siteActionTrigger1'] = 'meilisearch/meilisearch';
-        //         $event->rules['siteActionTrigger2'] = 'meilisearch/admin';
-        //     }
-        // );
-
-        // Event::on(
-        //     UrlManager::class,
-        //     UrlManager::EVENT_REGISTER_CP_URL_RULES,
-        //     function (RegisterUrlRulesEvent $event) {
-        //         $event->rules['meilisearch'] = 'meilisearch/admin/index';
-        //         $event->rules['meilisearch/indexes'] = 'meilisearch/admin/indexes';
-        //         $event->rules['meilisearch/debug'] = 'meilisearch/admin/debug';
-        //         $event->rules['meilisearch/search'] = 'meilisearch/search/index';
-        //     }
-        // );
-
         $this->events->attachEventListeners();
     }
 
@@ -153,12 +128,12 @@ class Meilisearch extends Plugin
     protected function initializeClient()
     {
         $settings = $this->getSettings();
-        $host = Craft::parseEnv($settings->host);
+        $host = App::parseEnv($settings->host);
 
         if (!$host) {
             $host = $settings->host;
         }
-        $key = Craft::parseEnv($settings->key);
+        $key = App::parseEnv($settings->key);
         if (!$key) {
             $key = $settings->key;
         }

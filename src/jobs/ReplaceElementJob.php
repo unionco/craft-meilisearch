@@ -12,19 +12,15 @@
 namespace unionco\meilisearch\jobs;
 
 use Craft;
-use craft\elements\Category;
 use craft\queue\BaseJob;
-use craft\elements\Entry;
-use craft\elements\Tag;
 use unionco\meilisearch\Meilisearch;
-use yii\base\ErrorException;
 
 /**
  * @author    Abry Rath
  * @package   Meilisearch
  * @since     0.1.0
  */
-class UpdateIndex extends BaseJob
+class ReplaceElementJob extends BaseJob
 {
     // Public Properties
     // =========================================================================
@@ -33,7 +29,10 @@ class UpdateIndex extends BaseJob
      * @var string
      */
 
-    public $uid = '';
+    public string $uid = '';
+    public int $elementId = 0;
+    public int $siteId = 0;
+
     // Public Methods
     // =========================================================================
 
@@ -42,7 +41,7 @@ class UpdateIndex extends BaseJob
      */
     public function execute($queue)
     {
-        Meilisearch::getInstance()->index->executeRebuildJob($this->uid, $queue);
+        Meilisearch::getInstance()->index->executeReplaceElementJob($this->uid, $this->elementId, $this->siteId, $queue);
     }
 
     // Protected Methods
@@ -53,6 +52,6 @@ class UpdateIndex extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return Craft::t('meilisearch', 'Updating Meilisearch Index - ' . $this->uid);
+        return Craft::t('meilisearch', 'Replacing Element ' . $this->elementId . ' in Meilisearch Index - ' . $this->uid);
     }
 }

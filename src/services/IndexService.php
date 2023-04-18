@@ -2,22 +2,25 @@
 
 namespace unionco\meilisearch\services;
 
+use Craft;
 use craft\queue\Queue;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use unionco\meilisearch\Meilisearch;
 use yii\base\InvalidConfigException;
-use unionco\meilisearch\jobs\UpdateIndex;
 use unionco\meilisearch\services\LogService;
+use unionco\meilisearch\jobs\RebuildIndexJob;
+use unionco\meilisearch\jobs\ReplaceElementJob;
 
 class IndexService extends Component
 {
     /**
      * Add a rebuild job to the queue
+     * This job will rebuild all entries/elements in the index
      */
     public function rebuild(string $uid)
     {
-        $job = new UpdateIndex([
+        $job = new RebuildIndexJob([
             'uid' => $uid,
         ]);
         /** @var Queue */
@@ -27,6 +30,22 @@ class IndexService extends Component
         // remove duplicates
         $queue->push($job);
 
+        return true;
+    }
+
+    /**
+     * Add a replace element job to the queue
+     * This job will replace only the given element, leaving others unchanged
+     */
+    public function replace(string $uid, int $elementId, int $siteId)
+    {
+        $job = new ReplaceElementJob([
+            'uid' => $uid,
+            'elementId' => $elementId,
+            'siteId' => $siteId,
+        ]);
+        $queue = Craft::$app->getQueue();
+        $queue->push($job);
         return true;
     }
 
@@ -67,7 +86,7 @@ class IndexService extends Component
     /**
      * Execute the actual logic for the queue job
      */
-    public function executeRebuildJob($uid, ?\craft\queue\Queue $queue = null)
+    public function executeRebuildJob($uid, ?Queue $queue = null)
     {
         $settings = Meilisearch::getInstance()->getSettings();
 
@@ -151,18 +170,33 @@ class IndexService extends Component
         }
     }
 
-    public function delete(string $uid)
+    public function executeReplaceElementJob(string $uid, int $elementId, int $siteId, ?Queue $queue = null)
     {
+        $settings = Meilisearch::getInstance()->getSettings();
+        $indexConfig = $settings->getIndexes()[$uid];
+        $elementQuery = $indexConfig->getElementQuery()
+            ->id($elementId);
+        $element = $elementQuery->one();
         $client = Meilisearch::getInstance()->getClient();
-        try {
-            $client->deleteIndex($uid);
-        } catch (\MeiliSearch\Exceptions\HTTPRequestException $e) {
+        $index = $client->getIndex($uid);
+        // If the element is not found, make sure it is removed from the index
+        if (!$element) {
+            LogService::info(__METHOD__, "Element [$elementId, $siteId] not found. Attempting to delete");
+            $result = $index->deleteDocument($elementId);
+            LogService::info(__METHOD__, $result);
+            return;
         }
+        $transform = $indexConfig->getTransform();
+        $transformed = $transform($element);
+        $index->addDocuments([$transformed]);
     }
 
-    public function deleteAll()
+    public function deleteAllDocuments(string $uid)
     {
+        $settings = Meilisearch::getInstance()->getSettings();
+        $indexConfig = $settings->getIndexes()[$uid];
         $client = Meilisearch::getInstance()->getClient();
-        $client->deleteAllIndexes();
+        $index = $client->getIndex($uid);
+        $index->deleteAllDocuments();
     }
 }
