@@ -191,10 +191,23 @@ class IndexService extends Component
         $index->addDocuments([$transformed]);
     }
 
+    public function createAllIndexes()
+    {
+        try {
+            $config = require CRAFT_BASE_PATH . '/config/meili.php';
+        } catch (\Throwable $e) {
+            echo "meili.php file does not exist";
+            return;
+        }
+        $indexes = array_keys($config);
+        $client = Meilisearch::getInstance()->getClient();
+        foreach ($indexes as $index) {
+            $client->createIndex($index);
+        }
+    }
+
     public function deleteAllDocuments(string $uid)
     {
-        $settings = Meilisearch::getInstance()->getSettings();
-        $indexConfig = $settings->getIndexes()[$uid];
         $client = Meilisearch::getInstance()->getClient();
         $index = $client->getIndex($uid);
         $index->deleteAllDocuments();

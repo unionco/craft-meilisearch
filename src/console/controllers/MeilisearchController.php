@@ -42,4 +42,16 @@ class MeilisearchController extends Controller
         }
         return ExitCode::OK;
     }
+
+    public function actionCreateAllIndexes()
+    {
+        try {
+            Meilisearch::getInstance()->index->createAllIndexes();
+            $this->stdout("Added delete-all job to queue\n");
+        } catch (\Throwable $e) {
+            $this->stderr("Error:" . $e->getMessage() . "\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+        return ExitCode::OK;
+    }
 }
