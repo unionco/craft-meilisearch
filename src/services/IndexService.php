@@ -202,7 +202,9 @@ class IndexService extends Component
         $indexes = array_keys($config);
         $client = Meilisearch::getInstance()->getClient();
         foreach ($indexes as $index) {
-            $client->createIndex($index);
+            $client->createIndex($index, [
+                'primaryKey' => 'id',
+            ]);
         }
     }
 
