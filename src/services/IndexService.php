@@ -217,7 +217,7 @@ class IndexService extends Component
 
     public function deleteIndex(string $uid) {
         $client = Meilisearch::getInstance()->getClient();
-        $index = $client->getIndex($uic);
+        $index = $client->getIndex($uid);
         $index->delete();
     }
 }
