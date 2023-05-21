@@ -174,20 +174,27 @@ class IndexService extends Component
     {
         $settings = Meilisearch::getInstance()->getSettings();
         $indexConfig = $settings->getIndexes()[$uid];
-        $elementQuery = $indexConfig->getElementQuery()
-            ->id($elementId);
+        $elementQuery = $indexConfig->getElementQuery()->id($elementId);
         $element = $elementQuery->one();
         $client = Meilisearch::getInstance()->getClient();
         $index = $client->getIndex($uid);
+
         // If the element is not found, make sure it is removed from the index
-        if (!$element) {
+        if (empty($element)) {
             LogService::info(__METHOD__, "Element [$elementId, $siteId] not found. Attempting to delete");
             $result = $index->deleteDocument($elementId);
             LogService::info(__METHOD__, $result);
             return;
         }
+
         $transform = $indexConfig->getTransform();
         $transformed = $transform($element);
+
+        if (empty($transformed)) {
+            LogService::info(__METHOD__, 'No elements remain after transformation - ' .  $uid);
+            return;
+        }
+
         $index->addDocuments([$transformed]);
     }
 
