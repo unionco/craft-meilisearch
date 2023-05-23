@@ -105,8 +105,8 @@ class EventService extends Component
                     /** @var string[] */
                     $uids = $rebuildMap['sections'][$sectionHandle];
                     foreach ($uids as $uid) {
-                        // Meilisearch::getInstance()->index->delete($uid);
-                        Meilisearch::getInstance()->index->rebuild($uid);
+                        // Create a 'replace' job for the matching element
+                        Meilisearch::getInstance()->index->replace($uid, $entry->id, $entry->siteId);
                     }
                 }
             };
@@ -115,10 +115,6 @@ class EventService extends Component
                 Entry::EVENT_AFTER_SAVE,
                 $entryRebuildCallback
             );
-            // Event::on(
-            //     Entry::class,
-            //     Entry::EVENT_AFTER
-            // )
         }
         // Attach Caegory group listeners, if set
         if ($runOnSave && $rebuildMap['categories'] ?? false) {
@@ -136,7 +132,8 @@ class EventService extends Component
                         /** @var string[] */
                         $uids = $rebuildMap['categories'][$groupHandle];
                         foreach ($uids as $uid) {
-                            Meilisearch::getInstance()->index->rebuild($uid);
+                            // Meilisearch::getInstance()->index->rebuild($uid);
+                            Meilisearch::getInstance()->index->replace($uid, $category->id, $category->siteId);
                         }
                     }
                 }

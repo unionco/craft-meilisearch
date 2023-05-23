@@ -15,7 +15,7 @@ use Craft;
 use craft\elements\Entry;
 use craft\web\Controller;
 use unionco\meilisearch\jobs\CreateIndex;
-use unionco\meilisearch\jobs\UpdateIndex;
+use unionco\meilisearch\jobs\RebuildIndexJob;
 use unionco\meilisearch\Meilisearch;
 
 /**
@@ -49,7 +49,7 @@ class MeilisearchController extends Controller
          */
         $queue = \Craft::$app->getQueue();
         $create = new CreateIndex(['uid' => 'properties']);
-        $update = new UpdateIndex(['uid' => 'properties', 'section' => 'property']);
+        $update = new RebuildIndexJob(['uid' => 'properties', 'section' => 'property']);
         $queue->push($create);
         $queue->push($update);
         return $this->asJson(['cool']);
