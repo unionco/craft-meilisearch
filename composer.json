@@ -2,7 +2,6 @@
     "name": "unionco/meilisearch",
     "description": "Meilisearch integration for Craft",
     "type": "craft-plugin",
-    "version": "0.2.0-rc8",
     "keywords": [
         "craft",
         "cms",
