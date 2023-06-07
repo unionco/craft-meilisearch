@@ -10,10 +10,11 @@
 
 namespace unionco\meilisearch\services;
 
-use unionco\meilisearch\Meilisearch;
-
 use Craft;
+
 use craft\base\Component;
+use unionco\meilisearch\Meilisearch;
+use unionco\meilisearch\models\Settings;
 
 /**
  * @author    Abry Rath
@@ -22,6 +23,8 @@ use craft\base\Component;
  */
 class MeilisearchService extends Component
 {
+    public ?Settings $settings = null;
+
     public function init(): void
     {
         parent::init();
@@ -45,6 +48,6 @@ class MeilisearchService extends Component
 
     public function runOnSave(): string
     {
-        return Meilisearch::parseEnv($this->settings->runOnSave);
+        return $this->settings->getRunOnSave();
     }
 }

@@ -45,7 +45,7 @@ class Settings extends Model
      */
     public string $key = '';
 
-    public bool $runOnSave = false;
+    public $runOnSave = '';
 
     // Public Methods
     // =========================================================================
@@ -62,8 +62,6 @@ class Settings extends Model
             ['backEndHost', 'default', 'value' => 'http://127.0.0.1:7700'],
             ['key', 'string'],
             ['key', 'default', 'value' => ''],
-            ['runOnSave', 'bool'],
-            ['runOnSave', 'default', 'value' => false],
         ];
     }
 
@@ -88,6 +86,10 @@ class Settings extends Model
         return $config;
     }
 
+    public function getRunOnSave(): bool
+    {
+        return (bool) Meilisearch::parseEnv($this->runOnSave);
+    }
 
 
     private function _initializeConfigFile()

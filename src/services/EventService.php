@@ -51,7 +51,7 @@ class EventService extends Component
         // Search-specific events
 
         $settings = Meilisearch::getInstance()->getSettings();
-        if (!$settings->runOnSave) {
+        if (!$settings->getRunOnSave()) {
             return;
         }
         /**
@@ -132,7 +132,7 @@ class EventService extends Component
             );
         }
         // Attach Caegory group listeners, if set
-        if ($runOnSave && $rebuildMap['categories'] ?? false) {
+        if ($settings->getRunOnSave() && $rebuildMap['categories'] ?? false) {
             Event::on(
                 Category::class,
                 Category::EVENT_AFTER_SAVE,
