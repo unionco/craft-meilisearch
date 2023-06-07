@@ -30,21 +30,21 @@ class MeilisearchService extends Component
 
     public function host(): string
     {
-        return $this->settings->host;
+        return Meilisearch::parseEnv($this->settings->host);
     }
 
     public function backeEndHost(): string
     {
-        return $this->settings->backEndHost;
+        return Meilisearch::parseEnv($this->settings->backEndHost);
     }
 
     public function key(): string
     {
-        return $this->settings->key;
+        return Meilisearch::parseEnv($this->settings->key);
     }
 
     public function runOnSave(): string
     {
-        return $this->settings->runOnSave;
+        return Meilisearch::parseEnv($this->settings->runOnSave);
     }
 }

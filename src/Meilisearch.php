@@ -128,12 +128,12 @@ class Meilisearch extends Plugin
     protected function initializeClient()
     {
         $settings = $this->getSettings();
-        $host = App::parseEnv($settings->host);
+        $host = self::parseEnv($settings->host);
 
         if (!$host) {
             $host = $settings->host;
         }
-        $key = App::parseEnv($settings->key);
+        $key = self::parseEnv($settings->key);
         if (!$key) {
             $key = $settings->key;
         }
@@ -151,5 +151,13 @@ class Meilisearch extends Plugin
                 'settings' => $this->getSettings(),
             ]
         );
+    }
+
+    public static function parseEnv(string $handle)
+    {
+        if (method_exists(App::class, 'parseEnv')) {
+            return App::parseEnv($handle);
+        }
+        return Craft::parseEnv($handle);
     }
 }

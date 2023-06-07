@@ -14,9 +14,11 @@ use craft\services\Dashboard;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
 use unionco\meilisearch\Meilisearch;
+use craft\web\twig\variables\CraftVariable;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use unionco\meilisearch\widgets\MeilisearchWidget;
+use unionco\meilisearch\services\MeilisearchService;
 
 class EventService extends Component
 {
@@ -29,6 +31,19 @@ class EventService extends Component
             Dashboard::EVENT_REGISTER_WIDGET_TYPES,
             function (RegisterComponentTypesEvent $event) {
                 $event->types[] = MeilisearchWidget::class;
+            }
+        );
+
+        // Update the CraftVariable
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            function(Event $e) {
+                /** @var CraftVariable $variable */
+                $variable = $e->sender;
+        
+                // Attach a service:
+                $variable->set('meilisearch', MeilisearchService::class);
             }
         );
 
