@@ -22,19 +22,29 @@ use craft\base\Component;
  */
 class MeilisearchService extends Component
 {
-    // Public Methods
-    // =========================================================================
-
-    /*
-     * @return mixed
-     */
-    public function exampleService()
+    public function init(): void
     {
-        $result = 'something';
-        // Check our Plugin's settings for `someAttribute`
-        if (Meilisearch::$plugin->getSettings()->someAttribute) {
-        }
+        parent::init();
+        $this->settings = Meilisearch::$plugin->getSettings();
+    }
 
-        return $result;
+    public function host(): string
+    {
+        return $this->settings->host;
+    }
+
+    public function backeEndHost(): string
+    {
+        return $this->settings->backEndHost;
+    }
+
+    public function key(): string
+    {
+        return $this->settings->key;
+    }
+
+    public function runOnSave(): string
+    {
+        return $this->settings->runOnSave;
     }
 }
