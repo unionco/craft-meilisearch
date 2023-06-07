@@ -20,10 +20,19 @@
 {{ forms.autosuggestField({
     suggestEnvVars: true,
     label: 'Meilisearch Host',
-    instructions: 'Include protocol and port',
+    instructions: 'Base URL used on the frontend of the site. Include protocol and port',
     id: 'host',
     name: 'host',
     value: settings['host']})
+}}
+
+{{ forms.autosuggestField({
+    suggestEnvVars: true,
+    label: 'Meilisearch Back End Host',
+    instructions: 'Base URL used on the back end of the site. This may be different if the back end is running in Docker, etc. Include protocol and port',
+    id: 'backEndHost',
+    name: 'backEndHost',
+    value: settings['backEndHost']})
 }}
 
 {{ forms.autosuggestField({
@@ -33,6 +42,15 @@
     id: 'key',
     name: 'key',
     value: settings['key']})
+}}
+
+{{ forms.autosuggestField({
+    suggestEnvVars: true,
+    label: 'Run On Save',
+    instructions: 'If enabled, search indices will be updated automatically when content is updated.',
+    id: 'runOnSave',
+    name: 'runOnSave',
+    value: settings['runOnSave']})
 }}
 {#
 <hr/>

@@ -34,9 +34,9 @@ class EventService extends Component
 
 
         // Search-specific events
-        $runOnSave = (bool) \getenv('MEILISEARCH_RUN_ON_SAVE');
+
         $settings = Meilisearch::getInstance()->getSettings();
-        if (!$runOnSave) {
+        if (!$settings->runOnSave) {
             return;
         }
         /**

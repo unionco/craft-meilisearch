@@ -30,16 +30,23 @@ class Settings extends Model
     // =========================================================================
 
     /**
-     * @var string
+     * @var string the Meilisearch API URL used on the front end
      */
-    public $host = 'http://127.0.0.1:7700';
+    public string $host = 'http://127.0.0.1:7700';
+
+    /**
+     *
+     * @var string the Meilisearch API URL used on the back end. May be different than the front end URL.   
+     */
+    public string $backEndHost = 'http://127.0.0.1:7700';
 
     /**
      * @var string
      */
-    public $key = '';
+    public string $key = '';
 
-    // public $indexes = [];
+    public bool $runOnSave = false;
+
     // Public Methods
     // =========================================================================
 
@@ -51,8 +58,12 @@ class Settings extends Model
         return [
             ['host', 'string'],
             ['host', 'default', 'value' => 'http://127.0.0.1:7700'],
+            ['backEndHost', 'string'],
+            ['backEndHost', 'default', 'value' => 'http://127.0.0.1:7700'],
             ['key', 'string'],
             ['key', 'default', 'value' => ''],
+            ['runOnSave', 'bool'],
+            ['runOnSave', 'default', 'value' => false],
         ];
     }
 
@@ -76,6 +87,8 @@ class Settings extends Model
         // }
         return $config;
     }
+
+
 
     private function _initializeConfigFile()
     {
