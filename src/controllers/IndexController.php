@@ -10,13 +10,6 @@ use unionco\meilisearch\Meilisearch;
 
 class IndexController extends Controller
 {
-    protected $allowAnonymous = ['show'];
-
-    public function actionShow()
-    {
-        return $this->asJson(['todo']);
-    }
-
     public function actionWidgetRebuild()
     {
         $this->requirePostRequest();

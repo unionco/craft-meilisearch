@@ -45,7 +45,7 @@ class Meilisearch extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '0.1.0';
+    public $schemaVersion = '0.1.1';
 
     /**
      * @var bool
@@ -55,7 +55,7 @@ class Meilisearch extends Plugin
     /**
      * @var bool
      */
-    public $hasCpSection = true;
+    public $hasCpSection = false;
 
     private $client;
 
@@ -76,37 +76,15 @@ class Meilisearch extends Plugin
             $this->controllerNamespace = 'unionco\meilisearch\console\controllers';
         } else {
             $this->controllerNamespace = 'unionco\meilisearch\controllers';
-            Craft::$app->getView()->registerTwigExtension(new MeilisearchTwigExtension());
         }
 
         $this->setComponents([
             'events' => \unionco\meilisearch\services\EventService::class,
             'index' => \unionco\meilisearch\services\IndexService::class,
             'search' => \unionco\meilisearch\services\SearchService::class,
-            // 'log' => \unionco\meilisearch\services\LogService::class,
-            // 'transforms' => \unionco\meilisearch\services\TransformService::class,
         ]);
 
         $this->events->attachEventListeners();
-    }
-
-    /** @inheritdoc */
-    public function getCpNavItem()
-    {
-        return [
-            'url' => 'meilisearch',
-            'label' => 'Meilisearch',
-            'subnav' => [
-                'indexes' => [
-                    'label' => 'Rebuild Indexes',
-                    'url' => 'meilisearch/indexes',
-                ],
-                'search' => [
-                    'label' => 'Search',
-                    'url' => 'meilisearch/search',
-                ],
-            ],
-        ];
     }
 
     public function getClient(): Client
