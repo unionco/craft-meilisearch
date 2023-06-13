@@ -188,6 +188,11 @@ class IndexService extends Component
         }
         $transform = $indexConfig->getTransform();
         $transformed = $transform($element);
+        if (!$transformed) {
+            LogService::info(__METHOD__, "Element was supposed to be updated, but is invalid. Removing from index - ID: $element->id");
+            $index->deleteDocument($element->id);
+            return;
+        }
         $index->addDocuments([$transformed]);
     }
 
@@ -215,7 +220,8 @@ class IndexService extends Component
         $index->deleteAllDocuments();
     }
 
-    public function deleteIndex(string $uid) {
+    public function deleteIndex(string $uid)
+    {
         $client = Meilisearch::getInstance()->getClient();
         $index = $client->getIndex($uid);
         $index->delete();
