@@ -3,8 +3,8 @@
 namespace unionco\meilisearch\widgets;
 
 use Craft;
-use craft\web\View;
 use craft\base\Widget;
+use craft\web\View;
 use unionco\meilisearch\Meilisearch;
 
 class MeilisearchWidget extends Widget
@@ -19,7 +19,7 @@ class MeilisearchWidget extends Widget
         return "Rebuild Search Indexes";
     }
 
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         /** @var View */
         $view = Craft::$app->getView();

@@ -86,7 +86,8 @@ class MeilisearchController extends Controller
      * @param string $uid
      * @return void
      */
-    public function actionDeleteAllDocuments(string $uid) {
+    public function actionDeleteAllDocuments(string $uid)
+    {
         try {
             Meilisearch::getInstance()->index->deleteAllDocuments($uid);
             $this->stdout("Added delete-all job to queue\n");
@@ -103,7 +104,8 @@ class MeilisearchController extends Controller
      * @param string $uid
      * @return void
      */
-    public function actionDeleteIndex(string $uid) {
+    public function actionDeleteIndex(string $uid)
+    {
         try {
             Meilisearch::getInstance()->index->deleteIndex($uid);
             $this->stdout("Added delete-index job to queue\n");

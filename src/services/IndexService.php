@@ -3,14 +3,12 @@
 namespace unionco\meilisearch\services;
 
 use Craft;
-use craft\queue\Queue;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
-use unionco\meilisearch\Meilisearch;
-use yii\base\InvalidConfigException;
-use unionco\meilisearch\services\LogService;
+use craft\queue\Queue;
 use unionco\meilisearch\jobs\RebuildIndexJob;
 use unionco\meilisearch\jobs\ReplaceElementJob;
+use unionco\meilisearch\Meilisearch;
 
 class IndexService extends Component
 {
@@ -97,7 +95,7 @@ class IndexService extends Component
 
         LogService::debug(__METHOD__, $uid);
         if (!$elementCount) {
-            LogService::error(__METHOD__, 'No elements matched index elementQuery - ' .  $uid);
+            LogService::error(__METHOD__, 'No elements matched index elementQuery - ' . $uid);
             return;
         }
 
@@ -116,7 +114,7 @@ class IndexService extends Component
 
         $transformed = array_filter($transformed);
         if (!$transformed) {
-            LogService::error(__METHOD__, 'No elements remain after transformation - ' .  $uid);
+            LogService::error(__METHOD__, 'No elements remain after transformation - ' . $uid);
             return;
         }
 

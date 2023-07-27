@@ -5,8 +5,8 @@ namespace unionco\meilisearch\controllers;
 use Craft;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
-use unionco\meilisearch\services\IndexService;
 use unionco\meilisearch\Meilisearch;
+use unionco\meilisearch\services\IndexService;
 
 class IndexController extends Controller
 {

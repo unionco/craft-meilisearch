@@ -5,8 +5,8 @@ namespace unionco\meilisearch\config;
 use Closure;
 use craft\base\Element;
 use craft\elements\db\ElementQuery;
-use yii\base\InvalidConfigException;
 use unionco\meilisearch\services\LogService;
+use yii\base\InvalidConfigException;
 
 class Index
 {

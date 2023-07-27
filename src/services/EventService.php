@@ -2,23 +2,19 @@
 
 namespace unionco\meilisearch\services;
 
-use Throwable;
-use craft\web\View;
-use yii\base\Event;
-use craft\helpers\App;
 use craft\base\Component;
-use craft\elements\Entry;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\events\ModelEvent;
-use craft\services\Dashboard;
+use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
-use unionco\meilisearch\Meilisearch;
+use craft\services\Dashboard;
 use craft\web\twig\variables\CraftVariable;
-use craft\events\RegisterTemplateRootsEvent;
-use craft\events\RegisterComponentTypesEvent;
+use Throwable;
+use unionco\meilisearch\Meilisearch;
 use unionco\meilisearch\widgets\MeilisearchWidget;
-use unionco\meilisearch\services\MeilisearchService;
+use yii\base\Event;
 
 class EventService extends Component
 {
@@ -38,10 +34,10 @@ class EventService extends Component
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
-            function(Event $e) {
+            function (Event $e) {
                 /** @var CraftVariable $variable */
                 $variable = $e->sender;
-        
+
                 // Attach a service:
                 $variable->set('meilisearch', MeilisearchService::class);
             }
@@ -104,7 +100,6 @@ class EventService extends Component
 
         // Attach Entry section listeners, if set
         if ($rebuildMap['sections'] ?? false) {
-
             $entryRebuildCallback = function (ModelEvent $event) use ($rebuildMap) {
                 /** @var Entry */
                 $entry = $event->sender;
@@ -157,6 +152,5 @@ class EventService extends Component
 
         /** @todo */
         // and so on...
-
     }
 }

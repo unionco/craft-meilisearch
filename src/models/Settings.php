@@ -13,11 +13,8 @@ namespace unionco\meilisearch\models;
 use Craft;
 
 use craft\base\Model;
-use craft\models\Section;
-use craft\elements\Category;
-use craft\models\CategoryGroup;
-use unionco\meilisearch\Meilisearch;
 use unionco\meilisearch\config\Index;
+use unionco\meilisearch\Meilisearch;
 
 /**
  * @author    Abry Rath
@@ -36,7 +33,7 @@ class Settings extends Model
 
     /**
      *
-     * @var string the Meilisearch API URL used on the back end. May be different than the front end URL.   
+     * @var string the Meilisearch API URL used on the back end. May be different than the front end URL.
      */
     public string $backEndHost = 'http://127.0.0.1:7700';
 
@@ -53,7 +50,7 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             ['host', 'string'],
@@ -76,12 +73,12 @@ class Settings extends Model
     public function getIndexes()
     {
         // if (!$this->indexes) {
-            $this->_initializeConfigFile();
-            /** @todo Set an event to change config file path **/
-            $configFilePath = $this->getConfigFilePath();
-            $config = require($configFilePath);
-            // var_dump($config); die;
-            // $this->indexes = $config;
+        $this->_initializeConfigFile();
+        /** @todo Set an event to change config file path **/
+        $configFilePath = $this->getConfigFilePath();
+        $config = require($configFilePath);
+        // var_dump($config); die;
+        // $this->indexes = $config;
         // }
         return $config;
     }

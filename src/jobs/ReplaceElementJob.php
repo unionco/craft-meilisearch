@@ -39,7 +39,7 @@ class ReplaceElementJob extends BaseJob
     /**
      * @inheritdoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         Meilisearch::getInstance()->index->executeReplaceElementJob($this->uid, $this->elementId, $this->siteId, $queue);
     }

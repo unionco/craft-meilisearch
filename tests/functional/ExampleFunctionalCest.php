@@ -2,7 +2,6 @@
 
 namespace unionco\meilisearchtests\acceptance;
 
-use Craft;
 use FunctionalTester;
 
 class ExampleFunctionalCest

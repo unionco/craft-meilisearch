@@ -13,11 +13,10 @@ namespace unionco\meilisearch;
 
 use Craft;
 use craft\base\Plugin;
+use craft\console\Application as ConsoleApplication;
 use craft\helpers\App;
 use MeiliSearch\Client;
 use unionco\meilisearch\models\Settings;
-use craft\console\Application as ConsoleApplication;
-use unionco\meilisearch\twigextensions\MeilisearchTwigExtension;
 use unionco\meilisearch\services\MeilisearchService as MeilisearchServiceService;
 
 /**
@@ -45,17 +44,17 @@ class Meilisearch extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '0.1.1';
+    public string $schemaVersion = '0.1.1';
 
     /**
      * @var bool
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     /**
      * @var bool
      */
-    public $hasCpSection = false;
+    public bool $hasCpSection = false;
 
     private $client;
 
@@ -98,7 +97,7 @@ class Meilisearch extends Plugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?\craft\base\Model
     {
         return new Settings();
     }

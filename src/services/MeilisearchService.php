@@ -10,8 +10,6 @@
 
 namespace unionco\meilisearch\services;
 
-use Craft;
-
 use craft\base\Component;
 use unionco\meilisearch\Meilisearch;
 use unionco\meilisearch\models\Settings;
