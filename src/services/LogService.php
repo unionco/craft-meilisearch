@@ -38,7 +38,7 @@ class LogService extends Component
 
     protected static function log(string $key, $message, int $level = self::LVL_INFO): void
     {
-        if (CRAFT_ENVIRONMENT === 'production' && $level < self::LVL_WARN) {
+        if (defined('CRAFT_ENVIRONMENT') && CRAFT_ENVIRONMENT === 'production' && $level < self::LVL_WARN) {
             return;
         }
         static::openFile();
