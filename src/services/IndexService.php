@@ -2,13 +2,13 @@
 
 namespace unionco\meilisearch\services;
 
-use Craft;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\queue\Queue;
 use unionco\meilisearch\jobs\RebuildIndexJob;
 use unionco\meilisearch\jobs\ReplaceElementJob;
 use unionco\meilisearch\Meilisearch;
+use Craft;
 
 class IndexService extends Component
 {
@@ -86,6 +86,10 @@ class IndexService extends Component
      */
     public function executeRebuildJob($uid, ?Queue $queue = null)
     {
+        // Test if this method is being called at all
+        $debugFile = Craft::$app->getPath()->getStoragePath() . '/logs/debug.log';
+        // file_put_contents($debugFile, "IndexService::executeRebuildJob called for uid: $uid\n", FILE_APPEND);
+        
         $settings = Meilisearch::getInstance()->getSettings();
 
         $indexConfig = $settings->getIndexes()[$uid];
@@ -94,7 +98,7 @@ class IndexService extends Component
         $elementQuery = $indexConfig->getElementQuery();
 
         LogService::debug(__METHOD__, $uid);
-        if (!$elementCount) {
+        if (!$elementCount && $elementQuery !== null) {
             LogService::error(__METHOD__, 'No elements matched index elementQuery - ' . $uid);
             return;
         }
@@ -103,34 +107,39 @@ class IndexService extends Component
 
         /** @var array[] */
         $transformed = [];
-        foreach ($elementQuery->each() as $i => $element) {
-            // Scale by 90% - the last 10% will be the meilisearch API call
-            $progress = ceil(($i / $elementCount) * 90);
-            $transformed[] = $transform($element);
-            if ($queue) {
-                $queue->setProgress($progress, 'Querying and transforming elements');
+        // Some indexes do not come from the CMS
+        // If the elementQuery is null, we don't need to query the database
+        $queryElements = $elementQuery !== null;
+        if ($queryElements) {
+            foreach ($elementQuery->each() as $i => $element) {
+                // Scale by 90% - the last 10% will be the meilisearch API call
+                $progress = ceil(($i / $elementCount) * 90);
+                $transformed[] = $transform($element);
+                if ($queue) {
+                    $queue->setProgress($progress, 'Querying and transforming elements');
+                }
             }
-        }
 
-        $transformed = array_filter($transformed);
-        if (!$transformed) {
-            LogService::error(__METHOD__, 'No elements remain after transformation - ' . $uid);
-            return;
-        }
+            $transformed = array_filter($transformed);
+            if (!$transformed) {
+                LogService::error(__METHOD__, 'No elements remain after transformation - ' . $uid);
+                return;
+            }
 
-        $flattened = [];
-        foreach ($transformed as $group) {
-            if (key_exists('id', $group)) {
-                $flattened[] = $group;
-            } else {
-                $firstLevel = ArrayHelper::firstValue($group);
-                // LogService::debug('firstLevel', $firstLevel);
-                if (key_exists('id', $firstLevel)) {
-                    $flattened[] = $firstLevel;
+            $flattened = [];
+            foreach ($transformed as $group) {
+                if (key_exists('id', $group)) {
+                    $flattened[] = $group;
                 } else {
-                    $secondLevel = ArrayHelper::firstValue($firstLevel);
-                    // LogService::debug('secondLevel', $secondLevel);
-                    $flattened[] = $secondLevel;
+                    $firstLevel = ArrayHelper::firstValue($group);
+                    // LogService::debug('firstLevel', $firstLevel);
+                    if (key_exists('id', $firstLevel)) {
+                        $flattened[] = $firstLevel;
+                    } else {
+                        $secondLevel = ArrayHelper::firstValue($firstLevel);
+                        // LogService::debug('secondLevel', $secondLevel);
+                        $flattened[] = $secondLevel;
+                    }
                 }
             }
         }
@@ -143,25 +152,45 @@ class IndexService extends Component
         /** @todo read from config */
         // $this->delete($uid);
         $index = $client->getIndex($uid);
+
+        // Apply index settings BEFORE checking transformed elements
+        // This allows settings to be applied even for indexes that don't use Craft elements
         $indexSettings = $indexConfig->getSettings();
+        // $debugFile = Craft::$app->getPath()->getStoragePath() . '/logs/debug.log';
+        // file_put_contents($debugFile, 'IndexService::rebuild - Index settings: ' . print_r($indexSettings, true) . "\n", FILE_APPEND);
         foreach ($indexSettings as $attr => $value) {
+            // file_put_contents($debugFile, "Processing setting: $attr = " . print_r($value, true) . "\n", FILE_APPEND);
             if (!$value) {
+                // file_put_contents($debugFile, "Skipping empty setting: $attr\n", FILE_APPEND);
                 continue;
             }
-            $name = "update" . ucFirst($attr);
-            $index->{$name}($value);
+            $name = 'update' . ucFirst($attr);
+            // file_put_contents($debugFile, "Calling method: $name\n", FILE_APPEND);
+            try {
+                $index->{$name}($value);
+                // file_put_contents($debugFile, "Successfully called $name\n", FILE_APPEND);
+            } catch (\Exception $e) {
+                // file_put_contents($debugFile, "Error calling $name: " . $e->getMessage() . "\n", FILE_APPEND);
+            }
         }
+
         // delete all documents in the index before rebuilding
         $index->deleteAllDocuments();
-        LogService::debug(__METHOD__ . ' - Before Add Documents (count)', count($transformed));
-        try {
-            $result = $index->addDocuments($flattened);
-            LogService::info(__METHOD__, $result);
-            // LogService::error(__METHOD__ . "[INFO]", $flattened);
-        } catch (\Throwable $e) {
-            LogService::error(__METHOD__ . "[ERROR]" . __METHOD__, $e->getMessage());
-            // LogService::error(__METHOD__, $flattened);
-            throw $e;
+        
+        // Only add documents if we have transformed elements from CMS
+        if ($queryElements) {
+            LogService::debug(__METHOD__, 'Before Add Documents (count): ' . count($transformed));
+            try {
+                $result = $index->addDocuments($flattened);
+                LogService::info(__METHOD__, $result);
+                // LogService::error(__METHOD__ . "[INFO]", $flattened);
+            } catch (\Throwable $e) {
+                LogService::error(__METHOD__ . '[ERROR]' . __METHOD__, $e->getMessage());
+                // LogService::error(__METHOD__, $flattened);
+                throw $e;
+            }
+        } else {
+            LogService::debug(__METHOD__, 'Non-CMS index, skipping document addition');
         }
         if ($queue) {
             $queue->setProgress(100, 'Complete');
@@ -172,7 +201,8 @@ class IndexService extends Component
     {
         $settings = Meilisearch::getInstance()->getSettings();
         $indexConfig = $settings->getIndexes()[$uid];
-        $elementQuery = $indexConfig->getElementQuery()
+        $elementQuery = $indexConfig
+            ->getElementQuery()
             ->id($elementId);
         $element = $elementQuery->one();
         $client = Meilisearch::getInstance()->getClient();
@@ -199,7 +229,7 @@ class IndexService extends Component
         try {
             $config = require CRAFT_BASE_PATH . '/config/meili.php';
         } catch (\Throwable $e) {
-            echo "meili.php file does not exist";
+            echo 'meili.php file does not exist';
             return;
         }
         $indexes = array_keys($config);

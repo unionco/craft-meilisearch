@@ -91,9 +91,23 @@ class Index
         return $this;
     }
 
+    public function setRankingRules(array $rankingRules): self
+    {
+        $this->_settings['rankingRules'] = $rankingRules;
+        return $this;
+    }
+
+    public function setDistinctAttribute(?string $distinctAttribute): self
+    {
+        $this->_settings['distinctAttribute'] = $distinctAttribute;
+        return $this;
+    }
+
     public function getSettings(): array
     {
-        return $this->_settings;
+        $settings = $this->settings();
+        error_log('Index::getSettings() called, returning: ' . print_r($settings, true));
+        return $settings;
     }
 
     public function setTransform(Closure $transform): self
@@ -139,6 +153,9 @@ class Index
     public function getElements(): array
     {
         $this->_elementQuery = $this->elementQuery();
+        if ($this->_elementQuery === null) {
+            return [];
+        }
         // LogService::debug(__METHOD__, $this->_elementQuery);
         return $this->_elementQuery->all();
     }
@@ -146,10 +163,13 @@ class Index
     public function getElementCount(): int
     {
         $this->_elementQuery = $this->elementQuery();
+        if ($this->_elementQuery === null) {
+            return 0;
+        }
         return $this->_elementQuery->count();
     }
 
-    public function getElementQuery(): ElementQuery
+    public function getElementQuery(): ?ElementQuery
     {
         return $this->elementQuery();
     }
