@@ -18,6 +18,9 @@ use craft\helpers\App;
 use MeiliSearch\Client;
 use unionco\meilisearch\models\Settings;
 use unionco\meilisearch\services\MeilisearchService as MeilisearchServiceService;
+use craft\events\RegisterCpNavItemsEvent;
+use craft\web\twig\variables\Cp;
+use yii\base\Event;
 
 /**
  * Class Meilisearch
@@ -64,10 +67,30 @@ class Meilisearch extends Plugin
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         self::$plugin = $this;
+
+        // Register asset bundle for CP
+        Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\settingscpsection\SettingsCpSectionAsset::class);
+        Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\meilisearch\MeilisearchAsset::class);
+
+        // Register CP navigation items
+        Event::on(
+            Cp::class,
+            Cp::EVENT_REGISTER_CP_NAV_ITEMS,
+            function(RegisterCpNavItemsEvent $event) {
+                $event->navItems[] = [
+                    'url' => 'actions/meilisearch/index/dashboard',
+                    'label' => Craft::t('meilisearch', 'Meilisearch'),
+                    'subnav' => [
+                        'dashboard' => ['label' => Craft::t('meilisearch', 'Dashboard'), 'url' => 'actions/meilisearch/index/dashboard'],
+                        'settings' => ['label' => Craft::t('meilisearch', 'Settings'), 'url' => 'settings/plugins/meilisearch'],
+                    ],
+                ];
+            }
+        );
 
         $this->initializeClient();
 
@@ -89,6 +112,35 @@ class Meilisearch extends Plugin
     public function getClient(): Client
     {
         return $this->client;
+    }
+
+    public function getCpNavItem(): ?array
+    {
+        $item = parent::getCpNavItem();
+        $item['label'] = Craft::t('meilisearch', 'Meilisearch');
+        $item['url'] = 'meilisearch/index/dashboard';
+        $item['subnav'] = [
+            'dashboard' => [
+                'label' => Craft::t('meilisearch', 'Dashboard'),
+                'url' => 'meilisearch/index/dashboard',
+            ],
+            'settings' => [
+                'label' => Craft::t('meilisearch', 'Settings'),
+                'url' => 'settings/plugins/meilisearch',
+            ],
+        ];
+        return $item;
+    }
+
+    public function getSettingsHtml(): ?string
+    {
+        return Craft::$app->getView()->renderTemplate(
+            'meilisearch/settings',
+            [
+                'settings' => $this->getSettings(),
+                'indexes' => $this->getSettings()->getIndexes(),
+            ]
+        );
     }
 
     // Protected Methods

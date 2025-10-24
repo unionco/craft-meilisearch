@@ -20,14 +20,14 @@ class Index
     protected $_rebuild;
     // https://docs.meilisearch.com/guides/advanced_guides/settings.html#synonyms
     protected $_settings = [
-        'synonyms' => null,
-        'stopWords' => null,
-        'attributesForFaceting' => null,
-        'rankingRules' => null,
+        'synonyms' => [],
+        'stopWords' => [],
+        'filterableAttributes' => [],
+        'rankingRules' => [],
         'distinctAttribute' => null,
-        'searchableAttributes' => null,
-        'displayedAttributes' => null,
-        'sortableAttributes' => null,
+        'searchableAttributes' => [],
+        'displayedAttributes' => [],
+        'sortableAttributes' => [],
     ];
 
     public function __construct($params = [])
@@ -48,15 +48,15 @@ class Index
 
     public function getUid(): string
     {
-        return $this->uid;
+        return $this->uid ?? 'notset';
     }
 
     /**
      * https://docs.meilisearch.com/guides/advanced_guides/faceted_search.html#setting-up-facets
      */
-    public function setAttributesForFaceting(array $facets): self
+    public function setFilterableAttributes(array $facets): self
     {
-        $this->_settings['attributesForFaceting'] = $facets;
+        $this->_settings['filterableAttributes'] = $facets;
         return $this;
     }
 
@@ -106,6 +106,18 @@ class Index
     public function getSettings(): array
     {
         $settings = $this->settings();
+        // Ensure all critical fields are set
+        $defaultSettings = [
+            'synonyms' => [],
+            'stopWords' => [],
+            'filterableAttributes' => [],
+            'rankingRules' => [],
+            'distinctAttribute' => null,
+            'searchableAttributes' => [],
+            'displayedAttributes' => [],
+            'sortableAttributes' => [],
+        ];
+        $settings = array_merge($defaultSettings, $settings);
         error_log('Index::getSettings() called, returning: ' . print_r($settings, true));
         return $settings;
     }

@@ -1,0 +1,124 @@
+{% extends "_layouts/cp" %}
+{% set title = "Meilisearch Dashboard" %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    
+    {% for handle, index in indexes %}
+        <div class="index-settings pane" style="margin-bottom: 2rem;">
+            <h2>{{ handle }} ({{ index.getUid() }})</h2>
+            <form method="post" action="{{ actionUrl('meilisearch/index/update-settings') }}" accept-charset="UTF-8">
+                {{ csrfInput() }}
+                <input type="hidden" name="uid" value="{{ index.getUid() }}">
+                
+                <div class="field">
+                    <h3>Current Settings</h3>
+                    <div class="settings-display">
+                        {% for key, value in index.getSettings() %}
+                            <div class="setting-item">
+                                <strong>{{ key }}:</strong> 
+                                {% if value is iterable %}
+                                    {{ value|json_encode|raw }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                {# Add form fields for editable settings #}
+                <div class="field">
+                    <div class="heading">
+                        <label>Searchable Attributes</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[searchableAttributes]" rows="5" class="text fullwidth">{{ index.getSettings()['searchableAttributes']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Displayed Attributes</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[displayedAttributes]" rows="5" class="text fullwidth">{{ index.getSettings()['displayedAttributes']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Filterable Attributes</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[filterableAttributes]" rows="5" class="text fullwidth">{{ index.getSettings()['filterableAttributes']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Sortable Attributes</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[sortableAttributes]" rows="5" class="text fullwidth">{{ index.getSettings()['sortableAttributes']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Ranking Rules</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[rankingRules]" rows="5" class="text fullwidth">{{ index.getSettings()['rankingRules']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Stop Words</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[stopWords]" rows="5" class="text fullwidth">{{ index.getSettings()['stopWords']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Synonyms</label>
+                    </div>
+                    <div class="input ltr">
+                        <textarea name="settings[synonyms]" rows="5" class="text fullwidth">{{ index.getSettings()['synonyms']|json_encode|raw }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="heading">
+                        <label>Distinct Attribute</label>
+                    </div>
+                    <div class="input ltr">
+                        <input type="text" name="settings[distinctAttribute]" value="{{ index.getSettings()['distinctAttribute'] ?? '' }}" class="text fullwidth">
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn submit">Update Settings</button>
+                    <a href="{{ actionUrl('meilisearch/index/rebuild', {'uid': index.getUid()}) }}" class="btn">Rebuild Index</a>
+                </div>
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            <li><a href="{{ url('meilisearch/index/dashboard') }}" class="sel">Dashboard</a></li>
+            <li><a href="{{ url('settings/plugins') }}">Plugins</a></li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {% do view.registerAssetBundle("unionco\\meilisearch\\assetbundles\\meilisearch\\MeilisearchAsset") %}
+{% endblock %}
