@@ -11,16 +11,16 @@
 
 namespace unionco\meilisearch;
 
-use Craft;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
+use craft\events\RegisterCpNavItemsEvent;
 use craft\helpers\App;
+use craft\web\twig\variables\Cp;
 use MeiliSearch\Client;
 use unionco\meilisearch\models\Settings;
 use unionco\meilisearch\services\MeilisearchService as MeilisearchServiceService;
-use craft\events\RegisterCpNavItemsEvent;
-use craft\web\twig\variables\Cp;
 use yii\base\Event;
+use Craft;
 
 /**
  * Class Meilisearch
@@ -72,25 +72,28 @@ class Meilisearch extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        // Register asset bundle for CP
-        Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\settingscpsection\SettingsCpSectionAsset::class);
-        Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\meilisearch\MeilisearchAsset::class);
+        // Only register asset bundles in web context, not console
+        if (!(Craft::$app instanceof ConsoleApplication)) {
+            // Register asset bundle for CP
+            Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\settingscpsection\SettingsCpSectionAsset::class);
+            Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\meilisearch\MeilisearchAsset::class);
 
-        // Register CP navigation items
-        Event::on(
-            Cp::class,
-            Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-            function(RegisterCpNavItemsEvent $event) {
-                $event->navItems[] = [
-                    'url' => 'actions/meilisearch/index/dashboard',
-                    'label' => Craft::t('meilisearch', 'Meilisearch'),
-                    'subnav' => [
-                        'dashboard' => ['label' => Craft::t('meilisearch', 'Dashboard'), 'url' => 'actions/meilisearch/index/dashboard'],
-                        'settings' => ['label' => Craft::t('meilisearch', 'Settings'), 'url' => 'settings/plugins/meilisearch'],
-                    ],
-                ];
-            }
-        );
+            // Register CP navigation items
+            Event::on(
+                Cp::class,
+                Cp::EVENT_REGISTER_CP_NAV_ITEMS,
+                function (RegisterCpNavItemsEvent $event) {
+                    $event->navItems[] = [
+                        'url' => 'actions/meilisearch/index/dashboard',
+                        'label' => Craft::t('meilisearch', 'Meilisearch'),
+                        'subnav' => [
+                            'dashboard' => ['label' => Craft::t('meilisearch', 'Dashboard'), 'url' => 'actions/meilisearch/index/dashboard'],
+                            'settings' => ['label' => Craft::t('meilisearch', 'Settings'), 'url' => 'settings/plugins/meilisearch'],
+                        ],
+                    ];
+                }
+            );
+        }
 
         $this->initializeClient();
 
