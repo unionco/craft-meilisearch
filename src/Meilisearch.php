@@ -75,9 +75,6 @@ class Meilisearch extends Plugin
         // Only register asset bundles in web context, not console
         if (!(Craft::$app instanceof ConsoleApplication)) {
             // Register asset bundle for CP
-            Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\settingscpsection\SettingsCpSectionAsset::class);
-            Craft::$app->view->registerAssetBundle(\unionco\meilisearch\assetbundles\meilisearch\MeilisearchAsset::class);
-
             // Register CP navigation items
             Event::on(
                 Cp::class,
